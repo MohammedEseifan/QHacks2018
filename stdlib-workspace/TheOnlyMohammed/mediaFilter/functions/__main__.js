@@ -1,25 +1,22 @@
 /**
-* A basic Hello World function
-* @param {string} imageURL Who you're saying hello to
-* @returns {string}
+* Image 
+* @param {string} userID ID of the user to analyse
+* @returns {Object}
 */
 
-const Clarifai = require('clarifai');
+const lib = require('lib')({token: process.env.STDLIB_LIBRARY_TOKEN});
 
 
-module.exports = (imageURL = 'https://samples.clarifai.com/metro-north.jpg', context, callback) => {
+module.exports = (userID = '', context, callback) => {
 
-const clarifai = new Clarifai.App({
-  apiKey: process.env.CLARIFAI_API_KEY
-});
-	// Prediction on general model using video API
-	clarifai.models.predict(Clarifai.MODERATION_MODEL, imageURL).then(
-	  function(response) {
-	    callback(null, JSON.stringify(response));
-	  },
-	  function(err) {
-	     callback(null, JSON.stringify(err));
-	  });
-  
+	lib.TheOnlyMohammed.mediaFilter['@dev'].imageAnalysis({imageURL: 'https://scontent-yyz1-1.cdninstagram.com/vp/279758741bb68647947e6b57b2b61ae4/5B09F9CD/t51.2885-15/e35/27580280_109049409884860_3828110063231303680_n.jpg'}, (err, result) => {
+
+	if(err){
+		callback(null, err);
+	}else{
+		callback(null, result);
+	}  		
+
+	});
 
 };
