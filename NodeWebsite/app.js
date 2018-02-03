@@ -64,15 +64,12 @@ exports.handleauth = function(req, res) {
       checkRun(runID);
       setTimeout(checkRun, 5000);
       
-
     });
     // lib.TheOnlyMohammed.mediaFilter['@dev']({userID:req.query.username, api:api }, (err, result) => {
     //   console.log(err);
     //   console.log(result);
     // });
   });
-
-
 
   ejs.renderFile('views/results.ejs', { username: req.query.username }, null, function (err, str) {
     console.log(err);
