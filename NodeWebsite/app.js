@@ -1,6 +1,7 @@
 var http = require('http');
 var express = require('express');
 var ejs = require('ejs');
+var lib = require('lib');
 var api = require('instagram-node').instagram();
 var app = express();
 
@@ -11,7 +12,7 @@ app.set('view engine', 'ejs')
  
 api.use({
   client_id: '0a8f5968db0141b985d4aa9574df3fe1',
-  client_secret: '7820d49f29cb436caae240e4847c1e78 ' 
+  client_secret: 'ea0c617b69374b02ba7ed1dacc240a0f' 
 });
  
 var redirect_uri = 'http://localhost:3000/handleauth';
@@ -24,8 +25,10 @@ exports.authorize_user = function (req, res) {
 exports.handleauth = function(req, res) {
   
   console.log(req.query.code);
+  console.log(newRedirect_uri);
   api.authorize_user(req.query.code, newRedirect_uri, function (err, result) {
     console.log(result);
+    console.log(err);
     if (err) {
       console.log(err.body);
       // res.send(err.body);
@@ -34,43 +37,12 @@ exports.handleauth = function(req, res) {
       // res.send('You made it!!');
     }
 
-    var instaName = req.query.username;
     api.use({ access_token: result.access_token });
-    api.user_search(instaName, function (err, users, remaining, limit) {
-      console.log("here is search result:")
-      if (err) {
-        console.log(err.body);
-       
-      } 
-      
-      var user_id = users[0].id;
-      // console.log(user_id);
-      res.redirect("https://api.instagram.com/v1/users/"+user_id+"/follows?access_token="+result.access_token);
-      api.user_follows(user_id, function (err, users, pagination, remaining, limit) {
-        if (err) {
-          console.log(err.body);
-        }
-        console.log(users);
-        console.log(err);
-        console.log(pagination);
-        console.log(remaining);
-        console.log(limit);
-        while(1) {
-          var num = users.length;
-          for (var i = 0; i < num; i++) {
-            console.log(users[i]);
-            api.user_media_recent(users[i].id, {count: 50}, function(err, medias, pagination, remaining, limit) {
-              console.log(medias);
-            });
-          }
-          if (pagination.next) {
-            pagination.next();
-          }else{
-            break;
-          }
-        }
 
-      });
+
+    lib.TheOnlyMohammed.mediaFilter['@dev']({userID:req.query.username, api:api }, (err, result) => {
+      console.log(err);
+      console.log(result);
     });
   });
 
