@@ -13,7 +13,7 @@ const clarifai = new Clarifai.App({
   apiKey: process.env.CLARIFAI_API_KEY
 });
 	// Prediction on general model using video API
-	clarifai.models.predict(Clarifai.MODERATION_MODEL, imageURL).then(
+	clarifai.models.predict(Clarifai.MODERATION_MODEL, imageURL).then( //uses moderation model
 	  function(response) {
 	  	var scoreNum =0;
 	  	for (var i =0; i < response.outputs[0].data.concepts.length; i++) {
@@ -22,10 +22,10 @@ const clarifai = new Clarifai.App({
 	  			break;
 	  		}
 	  	}
-	    callback(null, {score: scoreNum, error: false, errMessage:""});
+	    callback(null, {score: scoreNum, url: imageURL, error: false, errMessage:""});
 	  },
 	  function(err) {
-	     callback(null, {score: scoreNum, error: true, errMessage:err});
+	     callback(null, {score: scoreNum, url: imageURL, error: true, errMessage:err});
 	  });
   
 

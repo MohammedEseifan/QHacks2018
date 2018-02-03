@@ -6,9 +6,10 @@
   "main": "functions/__main__.js",
   "dependencies": {
     "clarifai": "^2.6.0",
+    "instagram-node": "^0.5.8",
     "lib": "^3.0.1"
   },
-  "private": true,
+  "private": false,
   "stdlib": {
     "build": "faaslang",
     "name": "TheOnlyMohammed/mediaFilter",

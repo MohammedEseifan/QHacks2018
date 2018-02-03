@@ -40,17 +40,17 @@ exports.handleauth = function(req, res) {
     api.use({ access_token: result.access_token });
 
 
-    lib.TheOnlyMohammed.mediaFilter['@dev']({userID:req.query.username, api:api }, (err, result) => {
+    lib.TheOnlyMohammed.mediaFilter['@dev']({userID:req.query.username, token:result.access_token }, (err, result) => {
       console.log(err);
-      console.log(result);
+      res.send(JSON.stringify(result));
     });
   });
 
-  ejs.renderFile('views/results.ejs', { username: req.query.username }, null, function (err, str) {
-    console.log(err);
-    console.log(str);
-    res.send(str);
-  });
+  // ejs.renderFile('views/results.ejs', { username: req.query.username }, null, function (err, str) {
+  //   console.log(err);
+  //   console.log(str);
+  //   res.send(str);
+  // });
 };
 
 exports.index = function(req,res){
