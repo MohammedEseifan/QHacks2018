@@ -26,6 +26,11 @@
                 $('.submitBtn').click(function (event) {
                     window.location.replace(window.location.href + "authorize_user?username=" + $('.username').val());
                 });
+                $(".username").keyup(function (event) {
+                    if (event.keyCode === 13) {
+                        $(".submitBtn").click();
+                    }
+                });
             });
         </script>
     </body>
