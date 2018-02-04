@@ -37,7 +37,7 @@ function parseFollowers(data){
     userCounter[name] = 2;
     userBuffer[name] = null;
     console.log("Sending request for "+name);
-    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, token: access_token, firsthalf: true}, (err, result) =>{
+    lib.spazoide.WatchfulAI['@dev']({ userID: name, token: access_token, firsthalf: true}, (err, result) =>{
       if (result && !result.error) {
         console.log(JSON.stringify(result));
         console.log("Got Result From: " + result.name);
@@ -56,7 +56,7 @@ function parseFollowers(data){
         }
       }
     });
-    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, token: access_token, firsthalf: false}, (err, result) => {
+    lib.spazoide.WatchfulAI['@dev']({ userID: name, token: access_token, firsthalf: false}, (err, result) => {
       if (result && !result.error) {
         console.log(JSON.stringify(result));
         console.log("Got Result From: " + result.name);
@@ -110,7 +110,7 @@ exports.handleauth = function(req, res) {
     
     api.use({ access_token: result.access_token });
     access_token= result.access_token;
-    // lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: "elloimraj", token: access_token, firsthalf: true }, (err, result) => {
+    // lib.spazoide.WatchfulAI['@dev']({ userID: "elloimraj", token: access_token, firsthalf: true }, (err, result) => {
 
     //   if (result) {
     //     // for (var k in result) {
