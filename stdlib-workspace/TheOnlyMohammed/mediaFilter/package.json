@@ -13,7 +13,7 @@
   "stdlib": {
     "build": "faaslang",
     "name": "TheOnlyMohammed/mediaFilter",
-    "timeout": 10000,
+    "timeout": 30000,
     "publish": true,
     "personalize": {
       "keys": [],

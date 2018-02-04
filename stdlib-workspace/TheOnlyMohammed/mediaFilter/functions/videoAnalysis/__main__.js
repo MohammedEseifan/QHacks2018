@@ -18,19 +18,20 @@ const clarifai = new Clarifai.App({
 	  	var frame_count = 0;
 	  	var sfw_score = 0;
 	  	var nsfw_score = 0;
-	  	for(frame in response.outputs.data.frames){
+	  	var frames = response.outputs[0].data.frames;
+	  	for(var i =0; i< frames.length; i++){
+	   		var frame = frames[i]
 	   		sfw_score = sfw_score + frame.data.concepts[0].value;
 	   		nsfw_score = nsfw_score + frame.data.concepts[1].value;
 	   		frame_count++;
 	  	}
 	  	sfw_score = sfw_score/frame_count;
 	  	nsfw_score = nsfw_score/frame_count;
-
+	  
 	  	callback(null, {score: sfw_score, url:videoURL, error: false, errMessage:""}); 
 	  },
 	  function(err) {
 	     callback(null, {score: sfw_score, url:videoURL, error: true, errMessage:err});
 	  });
   
-
 };

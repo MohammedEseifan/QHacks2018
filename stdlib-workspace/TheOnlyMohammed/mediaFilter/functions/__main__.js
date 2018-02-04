@@ -21,7 +21,7 @@ module.exports = (userID = '', token = '', context, callback) => {
 
 	api.use({
 		client_id: '0a8f5968db0141b985d4aa9574df3fe1',
-		client_secret: 'ea0c617b69374b02ba7ed1dacc240a0f',
+		client_secret: 'eda3c728840e4a94aecee5b82d3c6496',
 		access_token: token
 	});
 
@@ -33,14 +33,16 @@ module.exports = (userID = '', token = '', context, callback) => {
 			console.log(err.body);
 		}
 		user_id = users[0].id;
-
+		
 		api.user_media_recent(user_id, {count: 50}, function(err, medias, pagination, remaining, limit) {
 			if (err) {
 				callback(null, err);
 			}
 			var media_type;
 			var media_url;
-			for(media in medias){
+			
+			for(var i=0; i<medias.length;i++){
+				var media = medias[i];
 				media_type = media.type;
 				if(media_type == "image"){
 					media_url = media.images.standard_resolution.url;
@@ -52,11 +54,10 @@ module.exports = (userID = '', token = '', context, callback) => {
 					processingCount++;
 				}
 			}
-		});
-	});
-
-	while(processingCount > 0);
-	callback(null, globalArray);
+			while(processingCount > 0);
+			callback(null, globalArray);
+		});	
+	});	
 };
 
 function aggregator(err, result){
