@@ -198,24 +198,24 @@ exports.handleauth = function (req, res) {
 }
 
 function isLoggedIn (req, res) {
-  request({
-    uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/run',
-    method: 'POST',
-    form: {
-      api_key: 'tr0EdoMBubaDWcHYw0C7taFd',
-      start_url: 'https://www.instagram.com',
-      start_template: 'main_template',
-      start_value_override: JSON.stringify({user: usernameG}),
-      send_email: '0'
-    }
-  }, function (err, resp, body) {
-    console.log('running')
-    console.log(body)
-    var runID = JSON.parse(body).run_token
-    setTimeout(checkRun, 20000, runID)
-  })
+  // request({
+  //   uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/run',
+  //   method: 'POST',
+  //   form: {
+  //     api_key: 'tr0EdoMBubaDWcHYw0C7taFd',
+  //     start_url: 'https://www.instagram.com',
+  //     start_template: 'main_template',
+  //     start_value_override: JSON.stringify({user: usernameG}),
+  //     send_email: '0'
+  //   }
+  // }, function (err, resp, body) {
+  //   console.log('running')
+  //   console.log(body)
+  //   var runID = JSON.parse(body).run_token
+  //   setTimeout(checkRun, 20000, runID)
+  // })
 
-  // getLastRun()
+  getLastRun()
   res.render('loading')
 }
 
