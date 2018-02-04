@@ -19,7 +19,7 @@ api.use({
   client_secret: 'f092efa929a34ce3a5300661210a43b6'
 })
 
-var redirect_uri = 'http://localhost:3000/handleauth'
+var redirect_uri = 'http://ec2-13-59-101-147.us-east-2.compute.amazonaws.com:3000/handleauth'
 var newRedirect_uri
 var access_token = null
 var userBuffer = {}
@@ -84,6 +84,7 @@ function temp () {
 }
 
 function processDataForDisplay () {
+  displayDay = []
   var calculatedScores = Object.values(userBuffer)
   console.log(JSON.stringify(calculatedScores))
   for (var i = 0; i < calculatedScores.length; i++) {
@@ -143,12 +144,13 @@ exports.isReady = function (req, res) {
 }
 
 exports.authorize_user = function (req, res) {
+  usernameG = req.query.username
   if (access_token) {
     res.redirect('/handleauth')
     return
   }
   newRedirect_uri = redirect_uri + '?username=' + req.query.username
-  usernameG = req.query.username
+
   res.redirect(api.get_authorization_url(newRedirect_uri, {scope: ['public_content']}))
 }
 
@@ -191,30 +193,29 @@ exports.handleauth = function (req, res) {
     //   }
     // })
     isLoggedIn(req, res)
-    res.render('loading')
   })
 }
 
 function isLoggedIn (req, res) {
-  var username = req.query.username
-  // request({
-  //   uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/run',
-  //   method: 'POST',
-  //   form: {
-  //     api_key: 'tr0EdoMBubaDWcHYw0C7taFd',
-  //     start_url: 'https://www.instagram.com',
-  //     start_template: 'main_template',
-  //     start_value_override: JSON.stringify({user: username}),
-  //     send_email: '0'
-  //   }
-  // }, function (err, resp, body) {
-  //   console.log('running')
-  //   console.log(body)
-  //   var runID = JSON.parse(body).run_token
-  //   setTimeout(checkRun, 20000, runID)
-  // })
+  request({
+    uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/run',
+    method: 'POST',
+    form: {
+      api_key: 'tr0EdoMBubaDWcHYw0C7taFd',
+      start_url: 'https://www.instagram.com',
+      start_template: 'main_template',
+      start_value_override: JSON.stringify({user: usernameG}),
+      send_email: '0'
+    }
+  }, function (err, resp, body) {
+    console.log('running')
+    console.log(body)
+    var runID = JSON.parse(body).run_token
+    setTimeout(checkRun, 20000, runID)
+  })
 
-  getLastRun()
+  // getLastRun()
+  res.render('loading')
 }
 
 exports.index = function (req, res) {
