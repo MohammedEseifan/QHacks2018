@@ -19,11 +19,25 @@ api.use({
 });
  
 var redirect_uri = 'http://localhost:3000/handleauth';
- var newRedirect_uri;
+var newRedirect_uri;
+var access_token;
+var calculatedScores = [];
 
 
 function parseFollowers(data){
-  console.log(data)
+  var jsonData = JSON.parse(data).following;
+  for (var i = 0; i < jsonData.length; i++) {
+    var name = jsonData[i].name;
+    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, access_token: access_token }, (err, result) => {
+      
+      if(result){
+        console.log("Got results for "+name);
+        calculatedScores.push(result);;
+      }
+    });
+    
+  }
+  
 }
 
 
@@ -46,7 +60,7 @@ exports.handleauth = function(req, res) {
 
     var username = req.query.username;
     api.use({ access_token: result.access_token });
-
+    access_token= result.access_token;
     request({
       uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/run',
       method: 'POST',
@@ -64,10 +78,7 @@ exports.handleauth = function(req, res) {
       setTimeout(checkRun, 20000, runID);
       
     });
-    // lib.TheOnlyMohammed.mediaFilter['@dev']({userID:req.query.username, api:api }, (err, result) => {
-    //   console.log(err);
-    //   console.log(result);
-    // });
+    
   });
 
   ejs.renderFile('views/results.ejs', { username: req.query.username }, null, function (err, str) {
