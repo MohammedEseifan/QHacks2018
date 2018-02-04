@@ -2,6 +2,7 @@
  * Image 
  * @param {string} userID ID of the user to analyse
  * @param {string} token Instagram user auth_token
+ * @param {bool} firsthalf indicates if we are accessing the first half of media
  * @returns {Object}
  */
 
@@ -11,7 +12,8 @@ var api = require('instagram-node').instagram();
 var processingCount = 0;
 var globalArray = [];
 var globalDict = {};
-module.exports = (userID = '', token = '', context, callback) => {
+var profPic;
+module.exports = (userID = '', token = '', firsthalf = true, context, callback) => {
 	if (userID == '' || token == '') {
 		callback(null, {
 			error: false,
@@ -40,14 +42,20 @@ module.exports = (userID = '', token = '', context, callback) => {
 		}, function(err, medias, pagination, remaining, limit) {
 			if (err) {
 				callback(null, err);
+				return;
 			}
+			if(medias == null || medias.length==0){
+				callback(null, null);
+				return;
+			}
+
+			var profPic = medias[0].user.profile_picture;
 			var media_type;
 			var media_url;
-		
-			for (var i = 0; i < medias.length; i++) {
+
+			for (var i = firsthalf ? 0 : min(10,medias.length); i < medias.length; i++) {
 				var media = medias[i];
-				// callback(null, media);
-				// return
+				
 				media_type = media.type;
 
 				if (media_type == "image") {
@@ -75,6 +83,7 @@ module.exports = (userID = '', token = '', context, callback) => {
 					});
 				}
 			}
+
 		});
 	});
 	setTimeout(IsDone,29000, callback, userID);
@@ -84,8 +93,9 @@ module.exports = (userID = '', token = '', context, callback) => {
 function IsDone(callback, userID) {
 	
 	var a = {};
-	a[userID] = globalDict;
-	a["coutner"] = processingCount;
+	a["name"] = userID;
+	a["profilePic"] = profPic;
+	a["data"] = Object.values(globalDict);
 	callback(null, a);
 	
 }
