@@ -25,12 +25,12 @@ var access_token = null
 var userBuffer = {}
 
 function parseFollowers (data) {
-  var jsonData = JSON.parse(data).following
-  var tempcounter = jsonData.length
+  var jsonData = JSON.parse(data).following;
+  var tempcounter = jsonData.length;
   for (var i = 0; i < jsonData.length; i++) {
-    var name = jsonData[i].name
-    userBuffer[name] = null
-    console.log('Sending request for ' + name)
+    var name = jsonData[i].name;
+    userBuffer[name] = null;
+    console.log('Sending request for ' + name);
     lib.spazoide.WatchfulAI['@dev']({ userID: name, token: access_token, firsthalf: true }, (err, result) => {
       tempcounter = tempcounter - 0.5
       console.log('Got Result1 From: ' + JSON.stringify(result))
