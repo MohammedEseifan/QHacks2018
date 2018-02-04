@@ -145,6 +145,7 @@ exports.isReady = function (req, res) {
 
 exports.authorize_user = function (req, res) {
   usernameG = req.query.username
+  ready=false;
   if (access_token) {
     res.redirect('/handleauth')
     return
