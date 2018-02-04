@@ -10,6 +10,7 @@ var api = require('instagram-node').instagram();
 
 var processingCount = 0;
 var globalArray = [];
+var globalDict = {};
 module.exports = (userID = '', token = '', context, callback) => {
 	if (userID == '' || token == '') {
 		callback(null, {
@@ -33,34 +34,58 @@ module.exports = (userID = '', token = '', context, callback) => {
 			console.log(err.body);
 		}
 		user_id = users[0].id;
-		
-		api.user_media_recent(user_id, {count: 50}, function(err, medias, pagination, remaining, limit) {
+
+		api.user_media_recent(user_id, {
+			count: 50
+		}, function(err, medias, pagination, remaining, limit) {
 			if (err) {
 				callback(null, err);
 			}
 			var media_type;
 			var media_url;
-			
-			for(var i=0; i<medias.length;i++){
+
+			for (var i = 0; i < medias.length; i++) {
 				var media = medias[i];
+				// callback(null, media);
+				// return
 				media_type = media.type;
-				if(media_type == "image"){
+
+				if (media_type == "image") {
 					media_url = media.images.standard_resolution.url;
-					lib.TheOnlyMohammed.mediaFilter['@dev'].imageAnalysis({imageURL: media_url},  aggregator);
+					lib.TheOnlyMohammed.mediaFilter['@dev'].imageAnalysis({
+						imageURL: media_url
+					}, function(err, result) {
+						globalDict[result.url] = result;
+						processingCount--;
+					});
 					processingCount++;
-				}else if(media_type == "video"){
+				} else if (media_type == "video") {
 					media_url = media.videos.standard_resolution.url;
-					lib.TheOnlyMohammed.mediaFilter['@dev'].videoAnalysis({videoURL: media_url},  aggregator);
+					lib.TheOnlyMohammed.mediaFilter['@dev'].videoAnalysis({
+						videoURL: media_url
+					}, function(err, result) {
+						globalDict[result.url] = result;
+						processingCount--;
+					});
 					processingCount++;
 				}
 			}
-			while(processingCount > 0);
-			callback(null, globalArray);
-		});	
-	});	
+
+			setTimeout(checkIfDone, 2000, callback, userID);
+		});
+	});
 };
 
-function aggregator(err, result){
-	globalArray.push(result);
-	processingCount--;
+
+function checkIfDone(callback, userID) {
+	if (processingCount == 0) {
+		for (var key in globalDict) {
+			globalArray.push(globalDict[key]);
+		}
+		var a = {}
+		a[userID] = globalDict;
+		callback(null, a);
+	} else {
+		setTimeout(checkIfDone, 1000, callback, userID);
+	}
 }
