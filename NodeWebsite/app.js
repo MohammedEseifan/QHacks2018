@@ -1,3 +1,6 @@
+//import { timeout, times } from '../../../../../AppData/Local/Microsoft/TypeScript/2.6/node_modules/@types/async';
+//import { json } from '../../../../../AppData/Local/Microsoft/TypeScript/2.6/node_modules/@types/body-parser';
+
 var http = require('http');
 var express = require('express');
 var ejs = require('ejs');
@@ -26,44 +29,75 @@ var calculatedScores = [];
 
 function parseFollowers(data){
   var jsonData = JSON.parse(data).following;
+  var tempcounter = jsonData.length;
+  var userCounter = {};
+  var userBuffer = {};
   for (var i = 0; i < jsonData.length; i++) {
     var name = jsonData[i].name;
+    userCounter[name] = 2;
+    userBuffer[name] = null;
     console.log("Sending request for "+name);
-    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, token: access_token }, (err, result) => {
-
-      if (result) {
-        for (var k in result) {
-          if (k == 'error') {
-            return;
+    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, token: access_token, firsthalf: true}, (err, result) =>{
+      if (result && !result.error) {
+        console.log(JSON.stringify(result));
+        console.log("Got Result From: " + result.name);
+        userCounter[result.name] = userCounter[result.name] - 1;
+        if(userBuffer[result.name] = ""){
+          if (userBuffer[result.name]==null){
+            userBuffer[result.name] = result;
+          }else{
+            userBuffer[result.name] = userBuffer[result.name].data.concat(result.data);
+            tempcounter--;
+            if (tempcounter == 0) {
+              calculatedScores = userBuffer;
+              temp()
+            }
           }
-          result[k] = Object.values(result[k]);
-          name = k;
         }
-        console.log("Got results for " + name);
-        console.log(result);
-        calculatedScores.push(result);
+      }
+    });
+    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, token: access_token, firsthalf: false}, (err, result) => {
+      if (result && !result.error) {
+        console.log(JSON.stringify(result));
+        console.log("Got Result From: " + result.name);
+        userCounter[result.name] = userCounter[result.name] - 1;
+        if (userBuffer[result.name] = "") {
+          if (userBuffer[result.name] == null) {
+            userBuffer[result.name] = result;
+          } else {
+            userBuffer[result.name]= userBuffer[result.name].data.concat(result.data);
+            tempcounter--;
+            if(tempcounter==0){
+              calculatedScores = userBuffer;
+              temp()
+            }
+          }
+        }
       }
     });
   }
   
 }
 
+function temp(){
+  console.log(JSON.stringify(calculatedScores));
+}
 
 
 exports.authorize_user = function (req, res) {
-  // if (access_token) {
-  //   res.redirect("/handleauth");
-  //   return;
-  // }
+  if (access_token) {
+    res.redirect("/handleauth");
+    return;
+  }
   newRedirect_uri = redirect_uri + '?username=' + req.query.username;
   res.redirect(api.get_authorization_url(newRedirect_uri, {scope: ['public_content']}));
 };
  
 exports.handleauth = function(req, res) {
-  // if (access_token) {
-  //   isLoggedIn(req,res);
-  //   return;
-  // }
+  if (access_token) {
+    isLoggedIn(req,res);
+    return;
+  }
 
   api.authorize_user(req.query.code, newRedirect_uri, function (err, result) {
    
@@ -76,22 +110,22 @@ exports.handleauth = function(req, res) {
     
     api.use({ access_token: result.access_token });
     access_token= result.access_token;
-    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: "elloimraj", token: access_token }, (err, result) => {
+    // lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: "elloimraj", token: access_token, firsthalf: true }, (err, result) => {
 
-      if (result) {
-        // for (var k in result) {
-        //   if (k == 'error') {
-        //     return;
-        //   }
-        //   result[k] = Object.values(result[k]);
-        //   name = k;
-        // }
-        console.log("Got results ");
-        console.log(result);
-        calculatedScores.push(result);
-      }
-    });
-    // isLoggedIn(req, res);
+    //   if (result) {
+    //     // for (var k in result) {
+    //     //   if (k == 'error') {
+    //     //     return;
+    //     //   }
+    //     //   result[k] = Object.values(result[k]);
+    //     //   name = k;
+    //     // }
+    //     console.log("Got results ");
+    //     console.log(result);
+    //     calculatedScores.push(result);
+    //   }
+    // });
+    isLoggedIn(req, res);
   });
 };
 
@@ -115,7 +149,7 @@ function isLoggedIn(req, res){
 
         });
 
-      
+      // getLastRun();
   ejs.renderFile('views/results.ejs', { username: req.query.username }, null, function (err, str) {
     console.log(err);
     console.log(str);
@@ -164,6 +198,23 @@ function runIsDone(runID){
 
   request({
     uri: 'https://www.parsehub.com/api/v2/runs/'+runID+'/data',
+    method: 'GET',
+    gzip: true,
+    qs: {
+      api_key: "tr0EdoMBubaDWcHYw0C7taFd"
+    }
+  }, function (err, resp, body) {
+    console.log(body);
+    parseFollowers(body);
+  });
+
+}
+
+
+function getLastRun() {
+
+  request({
+    uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/last_ready_run/data',
     method: 'GET',
     gzip: true,
     qs: {
