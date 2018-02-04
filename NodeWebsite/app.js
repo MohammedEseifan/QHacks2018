@@ -61,8 +61,7 @@ exports.handleauth = function(req, res) {
       console.log("running");
       console.log(body);
       var runID = JSON.parse(body).run_token;
-      checkRun(runID);
-      setTimeout(checkRun, 5000);
+      setTimeout(checkRun, 20000, runID);
       
     });
     // lib.TheOnlyMohammed.mediaFilter['@dev']({userID:req.query.username, api:api }, (err, result) => {
@@ -94,6 +93,8 @@ http.createServer(app).listen(3000, function(){
 });
  
 function checkRun(runID){
+  console.log("checking");
+  console.log(runID);
   request({
     uri: 'https://www.parsehub.com/api/v2/runs/'+runID,
     method: 'GET',
@@ -101,14 +102,14 @@ function checkRun(runID){
       api_key: "tr0EdoMBubaDWcHYw0C7taFd"
     }
   }, function (err, resp, body) {
-    console.log("checking");
+    
     console.log(body);
     var body = JSON.parse(body)
     var doneRunning = body.data_ready;
     if(doneRunning){
       runIsDone(runID);
     }else{
-      setTimeout(checkRun, 5000);
+      setTimeout(checkRun, 5000, runID);
     }
   });
 }
