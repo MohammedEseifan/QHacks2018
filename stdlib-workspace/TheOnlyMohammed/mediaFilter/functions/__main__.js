@@ -22,7 +22,7 @@ module.exports = (userID = '', token = '', context, callback) => {
 
 	api.use({
 		client_id: '0a8f5968db0141b985d4aa9574df3fe1',
-		client_secret: 'eda3c728840e4a94aecee5b82d3c6496',
+		client_secret: 'f092efa929a34ce3a5300661210a43b6',
 		access_token: token
 	});
 
@@ -43,7 +43,7 @@ module.exports = (userID = '', token = '', context, callback) => {
 			}
 			var media_type;
 			var media_url;
-
+		
 			for (var i = 0; i < medias.length; i++) {
 				var media = medias[i];
 				// callback(null, media);
@@ -51,41 +51,41 @@ module.exports = (userID = '', token = '', context, callback) => {
 				media_type = media.type;
 
 				if (media_type == "image") {
+					processingCount++;
+
 					media_url = media.images.standard_resolution.url;
-					lib.TheOnlyMohammed.mediaFilter['@dev'].imageAnalysis({
-						imageURL: media_url
-					}, function(err, result) {
+					lib.TheOnlyMohammed.mediaFilter['@dev'].imageAnalysis({imageURL: media_url }, function(err, result) {
 						globalDict[result.url] = result;
 						processingCount--;
+						if(processingCount==0){
+							IsDone(callback, userID);
+						}
 					});
-					processingCount++;
+					
 				} else if (media_type == "video") {
+					processingCount++;
+
 					media_url = media.videos.standard_resolution.url;
-					lib.TheOnlyMohammed.mediaFilter['@dev'].videoAnalysis({
-						videoURL: media_url
-					}, function(err, result) {
+					lib.TheOnlyMohammed.mediaFilter['@dev'].videoAnalysis({videoURL: media_url }, function(err, result) {
 						globalDict[result.url] = result;
 						processingCount--;
+						if(processingCount==0){
+							IsDone(callback, userID);
+						}
 					});
-					processingCount++;
 				}
 			}
-
-			setTimeout(checkIfDone, 2000, callback, userID);
 		});
 	});
+	setTimeout(IsDone,29000, callback, userID);
 };
 
 
-function checkIfDone(callback, userID) {
-	if (processingCount == 0) {
-		for (var key in globalDict) {
-			globalArray.push(globalDict[key]);
-		}
-		var a = {}
-		a[userID] = globalDict;
-		callback(null, a);
-	} else {
-		setTimeout(checkIfDone, 1000, callback, userID);
-	}
+function IsDone(callback, userID) {
+	
+	var a = {};
+	a[userID] = globalDict;
+	a["coutner"] = processingCount;
+	callback(null, a);
+	
 }

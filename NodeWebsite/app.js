@@ -15,12 +15,12 @@ app.set('view engine', 'ejs')
  
 api.use({
   client_id: '0a8f5968db0141b985d4aa9574df3fe1',
-  client_secret: 'eda3c728840e4a94aecee5b82d3c6496' 
+  client_secret: 'f092efa929a34ce3a5300661210a43b6' 
 });
  
 var redirect_uri = 'http://localhost:3000/handleauth';
 var newRedirect_uri;
-var access_token;
+var access_token=null;
 var calculatedScores = [];
 
 
@@ -28,14 +28,22 @@ function parseFollowers(data){
   var jsonData = JSON.parse(data).following;
   for (var i = 0; i < jsonData.length; i++) {
     var name = jsonData[i].name;
-    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, access_token: access_token }, (err, result) => {
-      
-      if(result){
-        console.log("Got results for "+name);
-        calculatedScores.push(result);;
+    console.log("Sending request for "+name);
+    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: name, token: access_token }, (err, result) => {
+
+      if (result) {
+        for (var k in result) {
+          if (k == 'error') {
+            return;
+          }
+          result[k] = Object.values(result[k]);
+          name = k;
+        }
+        console.log("Got results for " + name);
+        console.log(result);
+        calculatedScores.push(result);
       }
     });
-    
   }
   
 }
@@ -43,12 +51,19 @@ function parseFollowers(data){
 
 
 exports.authorize_user = function (req, res) {
+  // if (access_token) {
+  //   res.redirect("/handleauth");
+  //   return;
+  // }
   newRedirect_uri = redirect_uri + '?username=' + req.query.username;
-  res.redirect(api.get_authorization_url(redirect_uri+'?username='+req.query.username));
+  res.redirect(api.get_authorization_url(newRedirect_uri, {scope: ['public_content']}));
 };
  
 exports.handleauth = function(req, res) {
-  
+  // if (access_token) {
+  //   isLoggedIn(req,res);
+  //   return;
+  // }
 
   api.authorize_user(req.query.code, newRedirect_uri, function (err, result) {
    
@@ -58,35 +73,55 @@ exports.handleauth = function(req, res) {
       console.log('Yay! Access token is ' + result.access_token);
     }
 
-    var username = req.query.username;
+    
     api.use({ access_token: result.access_token });
     access_token= result.access_token;
-    request({
-      uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/run',
-      method: 'POST',
-      form: {
-        api_key: "tr0EdoMBubaDWcHYw0C7taFd",
-        start_url: "https://www.instagram.com",
-        start_template: "main_template",
-        start_value_override: JSON.stringify({user: username}),
-        send_email: "0"
-      }
-    }, function (err, resp, body) {
-      console.log("running");
-      console.log(body);
-      var runID = JSON.parse(body).run_token;
-      setTimeout(checkRun, 20000, runID);
-      
-    });
-    
-  });
+    lib.TheOnlyMohammed.mediaFilter['@dev']({ userID: "elloimraj", token: access_token }, (err, result) => {
 
+      if (result) {
+        // for (var k in result) {
+        //   if (k == 'error') {
+        //     return;
+        //   }
+        //   result[k] = Object.values(result[k]);
+        //   name = k;
+        // }
+        console.log("Got results ");
+        console.log(result);
+        calculatedScores.push(result);
+      }
+    });
+    // isLoggedIn(req, res);
+  });
+};
+
+function isLoggedIn(req, res){
+  var username = req.query.username;
+    request({
+          uri: 'https://www.parsehub.com/api/v2/projects/tETfMCbfN8Md/run',
+          method: 'POST',
+          form: {
+            api_key: "tr0EdoMBubaDWcHYw0C7taFd",
+            start_url: "https://www.instagram.com",
+            start_template: "main_template",
+            start_value_override: JSON.stringify({user: username}),
+            send_email: "0"
+          }
+        }, function (err, resp, body) {
+          console.log("running");
+          console.log(body);
+          var runID = JSON.parse(body).run_token;
+          setTimeout(checkRun, 20000, runID);
+
+        });
+
+      
   ejs.renderFile('views/results.ejs', { username: req.query.username }, null, function (err, str) {
     console.log(err);
     console.log(str);
     res.send(str);
   });
-};
+  }
 
 exports.index = function(req,res){
   res.render('index');
@@ -136,6 +171,7 @@ function runIsDone(runID){
     }
   }, function (err, resp, body) {
     console.log(body);
+    parseFollowers(body);
   });
 
 }
