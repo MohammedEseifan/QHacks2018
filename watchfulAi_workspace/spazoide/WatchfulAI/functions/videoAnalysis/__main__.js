@@ -13,7 +13,7 @@ const clarifai = new Clarifai.App({
   apiKey: process.env.CLARIFAI_API_KEY
 });
 	// Prediction on general model using video API
-	clarifai.models.predict("e9576d86d2004ed1a38ba0cf39ecb4b1", videoURL, {video:true}).then( //uses nsfw model
+	clarifai.models.predict("d150ac2dd47e4670b4f8f5a7b7d4da73", videoURL, {video:true}).then( //uses nsfw model
 	  function(response){
 	  	var frame_count = 0;
 	  	var sfw_score = 0;

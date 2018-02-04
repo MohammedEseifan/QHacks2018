@@ -7,10 +7,11 @@
         crossorigin="anonymous">
     <style>
         .thumbnail {
-            display: inline-block;
+            display: inline-grid;
+            height: 400px;
         }
     </style>
-    <title>Hello, world!</title>
+    <title>Results</title>
 </head>
 
 <body>
@@ -18,16 +19,20 @@
     <div class="row">
 
         <div class="col-md-4"></div>
-        <div class="col-md-4">
-            <h1>Results for <%= username %>
-            </h1>
+        <div style="text-align: center" class="col-md-4">
+            <div style="text-align: center" class="page-header">
+                <img width="200" src="https://scontent-yyz1-1.xx.fbcdn.net/v/t35.0-12/27786801_1646432978748970_1394234258_o.png?oh=513cbba9bd1914c3c82af7c27c8e001c&oe=5A792862">
+                <h1>Results for <%= username %>
+                </h1>
+            </div>
+            <img width="200" src="<%= pic %>">
         </div>
         <div class="col-md-4"></div>
     </div>
 
-    <div class="row" style=" padding-left: 50px; padding-right: 50px; ">
+    <div class="row" style=" margin-top:30px;padding-left: 50px; padding-right: 50px; ">
         <% results.forEach(function(result) { %>
-            <div class="thumbnail">
+            <div style="background-color: <%= result.backcolor %>; border-color: <%= result.border %>" class="thumbnail">
                 <img src="<%= result.profilePic %>">
                 <div class="caption">
                     <h3>
@@ -35,11 +40,15 @@
                     </h3>
 
                     <ul class="list-group">
-                        <% result.data.forEach(function(r) { %>
+                        <div style="max-height: 175px; overflow-y: overlay" class="pre-scrollable">
+
+                        
+                        <% result.rows.forEach(function(r) { %>
                             <li style="background-color:<%= r.color  %>" class="list-group-item" data-link="<%= r.url  %>">
                                 <%= r.score  %>
                             </li>
                             <% }); %>
+                            </div>
                     </ul>
 
                 </div>
@@ -48,14 +57,39 @@
 
                 
     </div>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Image</h4>
+            </div>
+            <div class="modal-body">
+                <img width="568px" class="previewImg" src="" alt="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
     <!-- Latest compiled and minified JavaScript -->
 
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
-
+<script>
+    $(document).ready(function () {
+            $('.list-group-item').click(function (event) {
+                $('.previewImg').attr('src', $(this).data('link'));
+                $('#myModal').modal('show');
+            });
+        });
+</script>
 </body>
 
 </html>

@@ -9,6 +9,8 @@
 const lib = require('lib');
 var api = require('instagram-node').instagram();
 
+
+
 var processingCount = 0;
 var globalArray = [];
 var globalDict = {};
@@ -45,15 +47,14 @@ module.exports = (userID = '', token = '', firsthalf = true, context, callback) 
 				return;
 			}
 			if(medias == null || medias.length==0){
-				callback(null, null);
+				callback(null, {id: user_id, length: medias.length});
 				return;
 			}
-
-			var profPic = medias[0].user.profile_picture;
+			profPic = medias[0].user.profile_picture;
 			var media_type;
 			var media_url;
 
-			for (var i = firsthalf ? 0 : min(10,medias.length); i < medias.length; i++) {
+			for (var i = (firsthalf ? 0 : Math.min(10,medias.length)); i < (firsthalf ?  Math.min(10,medias.length): medias.length); i++) {
 				var media = medias[i];
 				
 				media_type = media.type;
@@ -63,7 +64,11 @@ module.exports = (userID = '', token = '', firsthalf = true, context, callback) 
 
 					media_url = media.images.standard_resolution.url;
 					lib.spazoide.WatchfulAI['@dev'].imageAnalysis({imageURL: media_url }, function(err, result) {
+						
+
 						globalDict[result.url] = result;
+						
+						
 						processingCount--;
 						if(processingCount==0){
 							IsDone(callback, userID);
